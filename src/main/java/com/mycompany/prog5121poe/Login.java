@@ -10,11 +10,11 @@ package com.mycompany.prog5121poe;
  */
 public class Login {
     // Variables
-    private String firstName;
-    private String lastName;
-    private String username;
-    private String password;
-    private String cellPhoneNumber;
+    private final String firstName;
+    private final String lastName;
+    private final String username;
+    private final String password;
+    private final String cellPhoneNumber;
 
     // Constructor
     public Login(String firstName, String lastName, String username,
