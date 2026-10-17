@@ -8,12 +8,12 @@ import java.util.Random;
  *
  * @author Student
  */
-public class Message {
-    private String messageID;
-    private String recipient;
-    private String message;
-    private String messageHash;
-    private int messageNumber;
+public final class Message {
+    private final String messageID;
+    private final String recipient;
+    private final String message;
+    private final String messageHash;
+    private final int messageNumber;
 
     public Message(String recipient, String message, int messageNumber) {
         this.messageID = generateMessageID();
