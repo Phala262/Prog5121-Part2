@@ -58,7 +58,9 @@ System.out.println("Welcome to QuickChat!");
         System.out.println("Welcome to QuickChat.");
 
         MessageManager manager = new MessageManager();
-
+ 
+        
+        
         boolean running = true;
 
         while (running) {
@@ -140,6 +142,15 @@ System.out.println("Welcome to QuickChat!");
 
                         System.out.println(
                                 manager.processMessage(message, choice));
+                        if (choice.equals("3")){
+                            boolean saved = manager.storeMessages();
+                             
+                            if (saved) {
+                               System.out.println("Messages saved to json.");
+                            } else {
+                               System.out.println("Could not save messages.json.");
+                            }
+                        }
                     }
 
                     System.out.println("Total messages sent: "
