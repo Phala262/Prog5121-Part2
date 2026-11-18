@@ -90,8 +90,8 @@ System.out.println("LOGIN SUCCESSFUL - OPENING MAIN MENU");
             break;
 
         case "4":
-            // Part 3 stored messages functionality.
-            // We will connect this to MessageManager.java.
+            System.out.println("\nSTORED MESSAGES");
+            manager.displayStoredMessages();
             break;
 
         default:
