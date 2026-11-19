@@ -5,6 +5,7 @@
 package com.mycompany.prog5121poe;
 
 import java.util.Scanner;
+import java.util.ArrayList;
 /**
  *
  * @author Student
@@ -148,7 +149,18 @@ System.out.println("LOGIN SUCCESSFUL - OPENING MAIN MENU");
         case "6":
             System.out.print("Enter recipient cellphone number: ");
             String searchRecipient = input.nextLine();
-            System.out.println(manager.searchMessagesByRecipient(searchRecipient));
+
+            ArrayList<Message> results =
+            manager.searchMessagesByRecipient(searchRecipient);
+
+            if (results.isEmpty()) {
+            System.out.println("No messages found for this recipient.");
+            } else {
+            for (Message message : results) {
+            System.out.println(message.printMessages());
+            System.out.println("-------------------------");
+            }
+        }
             break;
 
         case "7":
