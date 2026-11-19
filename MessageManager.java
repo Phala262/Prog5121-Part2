@@ -7,6 +7,8 @@ package com.mycompany.prog5121poe;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 /**
  * Manages QuickChat messages.
@@ -21,6 +23,8 @@ public class MessageManager {
 
     // Arrays required for Part 3.
     private String[] sentMessages;
+    private String[] disregardedMessageArray;
+    private String[] storedMessageArray;
     private String[] messageHashes;
     private String[] messageIDs;
 
@@ -34,10 +38,14 @@ public class MessageManager {
         storedMessages = new ArrayList<>();
 
         sentMessages = new String[0];
+        disregardedMessageArray = new String[0];
+        storedMessageArray = new String[0];
         messageHashes = new String[0];
         messageIDs = new String[0];
 
         totalMessagesSent = 0;
+        
+        loadStoredMessages();
     }
 
     // Processes the user's selected message action.
@@ -82,6 +90,8 @@ public class MessageManager {
     private void updateArrays() {
 
         ArrayList<String> sent = new ArrayList<>();
+        ArrayList<String> disregarded = new ArrayList<>();
+        ArrayList<String> stored = new ArrayList<>();
         ArrayList<String> hashes = new ArrayList<>();
         ArrayList<String> ids = new ArrayList<>();
 
@@ -92,16 +102,20 @@ public class MessageManager {
         }
 
         for (Message message : disregardedMessages) {
+            disregarded.add(message.getMessage());
             hashes.add(message.getMessageHash());
             ids.add(message.getMessageID());
         }
 
         for (Message message : storedMessages) {
+            stored.add(message.getMessage());
             hashes.add(message.getMessageHash());
             ids.add(message.getMessageID());
         }
 
         sentMessages = sent.toArray(new String[0]);
+        disregardedMessageArray = disregarded.toArray(new String[0]);
+        storedMessageArray = stored.toArray(new String[0]);
         messageHashes = hashes.toArray(new String[0]);
         messageIDs = ids.toArray(new String[0]);
     }
@@ -194,6 +208,8 @@ public class MessageManager {
         for (Message message : storedMessages) {
 
             System.out.println("Sender: QuickChat User");
+            System.out.println("Message ID: " + message.getMessageID());
+            System.out.println("Message Hash: " + message.getMessageHash());
             System.out.println("Recipient: " + message.getRecipient());
             System.out.println("Message: " + message.getMessage());
             System.out.println("-------------------------");
@@ -203,22 +219,33 @@ public class MessageManager {
     // Finds the longest sent message.
     public String findLongestMessage() {
 
-        if (messages.isEmpty()) {
-            return "No sent messages available.";
+        if (messages.isEmpty() && storedMessages.isEmpty()) {
+        return "No messages available.";
+    }
+
+    Message longest = null;
+
+    for (Message message : messages) {
+
+        if (longest == null
+                || message.getMessage().length()
+                > longest.getMessage().length()) {
+
+            longest = message;
         }
+    }
 
-        Message longest = messages.get(0);
+    for (Message message : storedMessages) {
 
-        for (Message message : messages) {
+        if (longest == null
+                || message.getMessage().length()
+                > longest.getMessage().length()) {
 
-            if (message.getMessage().length()
-                    > longest.getMessage().length()) {
-
-                longest = message;
-            }
+            longest = message;
         }
+    }
 
-        return longest.getMessage();
+    return longest.getMessage();
     }
 
     // Searches for a message using its ID.
@@ -310,32 +337,39 @@ public class MessageManager {
     // Displays a report of all sent messages.
     public void displayMessageReport() {
 
-        if (messages.isEmpty()) {
-            System.out.println("No sent messages available.");
-            return;
-        }
+        if (messages.isEmpty()
+            && storedMessages.isEmpty()
+            && disregardedMessages.isEmpty()) {
 
-        System.out.println("\nFULL MESSAGE REPORT");
+        System.out.println("No messages available.");
+        return;
+    }
 
-        for (Message message : messages) {
+    System.out.println("\nFULL MESSAGE REPORT");
 
-            System.out.println("Message ID: "
-                    + message.getMessageID());
+    System.out.println("\nSENT MESSAGES");
 
-            System.out.println("Message Hash: "
-                    + message.getMessageHash());
+    for (Message message : messages) {
+        System.out.println(message.printMessages());
+        System.out.println("-------------------------");
+    }
 
-            System.out.println("Recipient: "
-                    + message.getRecipient());
+    System.out.println("\nSTORED MESSAGES");
 
-            System.out.println("Message: "
-                    + message.getMessage());
+    for (Message message : storedMessages) {
+        System.out.println(message.printMessages());
+        System.out.println("-------------------------");
+    }
 
-            System.out.println("-------------------------");
-        }
+    System.out.println("\nDISREGARDED MESSAGES");
 
-        System.out.println("Total messages sent: "
-                + totalMessagesSent);
+    for (Message message : disregardedMessages) {
+        System.out.println(message.printMessages());
+        System.out.println("-------------------------");
+    }
+
+    System.out.println("Total messages sent: "
+            + totalMessagesSent);
     }
 
     // Returns the sent messages array.
@@ -352,4 +386,111 @@ public class MessageManager {
     public String[] getMessageIDsArray() {
         return messageIDs;
     }
+    
+    public String[] getDisregardedMessageArray() {
+    return disregardedMessageArray;
+    }
+
+    public String[] getStoredMessageArray() {
+    return storedMessageArray;
+    }
+    // Loads stored messages from messages.json when the program starts.
+public void loadStoredMessages() {
+
+    try (BufferedReader reader = new BufferedReader(
+            new FileReader("messages.json"))) {
+
+        StringBuilder json = new StringBuilder();
+        String line;
+
+        while ((line = reader.readLine()) != null) {
+            json.append(line);
+        }
+
+        String content = json.toString().trim();
+
+        if (content.isEmpty() || content.equals("[]")) {
+            updateArrays();
+            return;
+        }
+
+        content = content.substring(1, content.length() - 1).trim();
+
+        if (content.isEmpty()) {
+            updateArrays();
+            return;
+        }
+
+        String[] objects = content.split("\\},\\s*\\{");
+
+        for (String object : objects) {
+
+            String messageID = extractJSONValue(object, "messageID");
+            String messageHash = extractJSONValue(object, "messageHash");
+            String recipient = extractJSONValue(object, "recipient");
+            String messageText = extractJSONValue(object, "message");
+
+            Message message = new Message(messageID, recipient, messageText, 0, messageHash);
+
+            storedMessages.add(message);
+        }
+
+        updateArrays();
+
+    } catch (IOException e) {
+        System.out.println("Could not load stored messages: "
+                + e.getMessage());
+    }
+}
+
+// Extracts a value from a JSON message object.
+private String extractJSONValue(String json, String key) {
+
+    String search = "\"" + key + "\": \"";
+    int start = json.indexOf(search);
+
+    if (start == -1) {
+        return "";
+    }
+
+    start += search.length();
+
+    StringBuilder value = new StringBuilder();
+    boolean escaped = false;
+
+    for (int i = start; i < json.length(); i++) {
+
+        char current = json.charAt(i);
+
+        if (escaped) {
+            switch (current) {
+                case 'n':
+                    value.append('\n');
+                    break;
+                case 'r':
+                    value.append('\r');
+                    break;
+                case 't':
+                    value.append('\t');
+                    break;
+                default:
+                    value.append(current);
+                    break;
+            }
+
+            escaped = false;
+
+        } else if (current == '\\') {
+            escaped = true;
+
+        } else if (current == '"') {
+            return value.toString();
+
+        } else {
+            value.append(current);
+        }
+    }
+
+    return "";
+}
 }

@@ -75,7 +75,7 @@ System.out.println("LOGIN SUCCESSFUL - OPENING MAIN MENU");
     System.out.println("7. Delete Message by Hash");
     System.out.println("8. Display Message Report");
     System.out.println("9. Display Total Messages Sent");
-
+    System.out.println("10. Display Longest Message");
 
     System.out.print("Choose an option: ");
 
@@ -176,6 +176,10 @@ System.out.println("LOGIN SUCCESSFUL - OPENING MAIN MENU");
         case "9":
             System.out.println("Total messages sent: " + manager.returnTotalMessages());
             break;
+            
+        case "10":
+            System.out.println("Longest message: " + manager.findLongestMessage());
+            break;   
 
         default:
             System.out.println("Invalid option. Please try again.");
