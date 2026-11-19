@@ -222,27 +222,27 @@ public class MessageManager {
     }
 
     // Searches for a message using its ID.
-    public Message searchMessageByID(String id) {
+    public String searchMessageByID(String id) {
 
         for (Message message : messages) {
-            if (message.getMessageID().equals(id)) {
-                return message;
-            }
+        if (message.getMessageID().equals(id)) {
+            return message.printMessages();
         }
+    }
 
-        for (Message message : storedMessages) {
-            if (message.getMessageID().equals(id)) {
-                return message;
-            }
+    for (Message message : storedMessages) {
+        if (message.getMessageID().equals(id)) {
+            return message.printMessages();
         }
+    }
 
-        for (Message message : disregardedMessages) {
-            if (message.getMessageID().equals(id)) {
-                return message;
-            }
+    for (Message message : disregardedMessages) {
+        if (message.getMessageID().equals(id)) {
+            return message.printMessages();
         }
+    }
 
-        return null;
+    return "Message not found.";
     }
 
     // Searches for messages sent to a particular recipient.
